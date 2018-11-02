@@ -14,11 +14,9 @@ We address the problem of enhancing the speech of a speaker of interest in a coc
 ## Demos
 The following videos contains severals examples of enhanced speech of models proposed in our paper.
 
-<div style="width: 100%; overflow: hidden;">
-    <div style="width: 600px; float: left;">
-    <iframe width="500" height="417" src="videos/grid_2spk.mp4" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+### GRID dataset
+<div align="center">
+    <p><b>2-Speaker Mix</b></p>
+    <iframe width="600" height="500" src="videos/grid_2spk.mp4" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
-    <div style="margin-left: 620px;">
-    <iframe width="500" height="417" src="videos/grid_2spk.mp4" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-</div>
-</div>
+
