@@ -329,7 +329,7 @@ class VL2MRef(object):
     def enhanced_sources(self):
         if self._enhanced_sources is None:
             mixed_mag_specs = tf.abs(self.mixed_specs) ** 0.3
-            masked_mag_specs = (mixed_mag_specs * tf.cast(self.prediction, tf.float32)) ** 3.3333333333333335
+            masked_mag_specs = (mixed_mag_specs * tf.cast(self.prediction, tf.float32)) ** (1 / 0.3)
             self._enhanced_sources = get_sources(masked_mag_specs, tf.angle(self.mixed_specs), num_samples=self.num_audio_samples)
         return tf.identity(self._enhanced_sources, name='enhanced_sources')
 
@@ -517,7 +517,7 @@ class AudioVisualConcatMask(object):
     def enhanced_sources(self):
         if self._enhanced_sources is None:
             mixed_mag_specs = tf.abs(self.mixed_specs) ** 0.3
-            masked_mag_specs = (mixed_mag_specs * tf.cast(self.prediction, tf.float32)) ** 3.3333333333333335
+            masked_mag_specs = (mixed_mag_specs * tf.cast(self.prediction, tf.float32)) ** (1 / 0.3)
             self._enhanced_sources = get_sources(masked_mag_specs, tf.angle(self.mixed_specs), num_samples=self.num_audio_samples)
         return tf.identity(self._enhanced_sources, name='enhanced_sources')
 
@@ -700,7 +700,7 @@ class AudioVisualConcatSpec(object):
     @property
     def enhanced_sources(self):
         if self._enhanced_sources is None:
-            enhanced_mag_specs = tf.cast(self.prediction, tf.float32) ** 3.3333333333333335
+            enhanced_mag_specs = tf.cast(self.prediction, tf.float32) ** (1 / 0.3)
             self._enhanced_sources = get_sources(enhanced_mag_specs, tf.angle(self.mixed_specs), num_samples=self.num_audio_samples)
         return tf.identity(self._enhanced_sources, name='enhanced_sources')
 
