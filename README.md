@@ -11,26 +11,26 @@ pip install -r requirements.txt
 ```
 ### Usage
 The main program is ```av_speech_enhancement.py```. You can get a list of subcommands typing ```av_speech_enhancement.py -h```.  Try ```av_speech_enhancement.py <subcommand> -h``` for more information about a subcommand.
-The audio-visual dataset mush have the following directory structure:
+The audio-visual dataset must have the following directory structure:
 ```
 s1
   /audio
-        /file1.wav
-        /file2.wav
-        ...
+	/file1.waw
+	/file2.wav
+	...
   /video
-		/file1.mpg
-		/file2.mpg
-		...
+	/file1.mpg
+	/file2.mpg
+	...
 s2
-   /audio
-	   	 /file1.wav
-         /file2.wav
-         ...
-   /video
-		 /file1.mpg
-		 /file2.mpg
-		 ...
+  /audio
+	/file1.wav
+	/file2.wav
+	...
+  /video
+	/file1.mpg
+	/file2.mpg
+	...
 ...
 ```
 #### Mixed-speech generation
@@ -39,25 +39,25 @@ Generate mixed-speech for training, validation and test sets separately:
 av_speech_enhancement.py mixed_speech_generator
 	--data_dir <data_dir>
 	--base_speaker_ids <spk1> <spk2> <...>
-    [--noisy_speaker_ids <spk1> <spk2> <...>]
-    --audio_dir <audio_dir>
-    --dest_dir <dest_dir>
-    --num_samples <num_samples>
-    --num_mix <num_mix>
-    --num_mix_speakers <num_mix_speakers> {1,2}
+	[--noisy_speaker_ids <spk1> <spk2> <...>]
+	--audio_dir <audio_dir>
+	--dest_dir <dest_dir>
+	--num_samples <num_samples>
+	--num_mix <num_mix>
+	--num_mix_speakers <num_mix_speakers> {1,2}
 ```
 The generated files are organized as follow:
 ```
 TRAINING_SET
-			/s1
-				/file1_with_s2_file2.wav
-				/file2_with_s10_file4.wav
-				...
-			/s2
-				/file1_with_s12_file5.wav
-				/file2_with_s1_file1.wav
-				...
-			...
+	    /s1
+	       /file1_with_s2_file2.wav
+	       /file2_with_s10_file4.wav
+	       ...
+	    /s2
+	       /file1_with_s12_file5.wav
+	       /file2_with_s1_file1.wav
+	       ...
+	...
 VALIDATION_SET
 	...
 TEST_SET
@@ -87,7 +87,7 @@ av_speech_enhancement.py video_preprocessing
 ```
 ```<shape_predictor_file>```  contains the parameters of the face landmark extractor model. You can download a pre-trained model file [here](http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2).
 
-You can watch the result of the face landmark extractor using:
+If you want to check the result of the face landmark extractor type:
 ```
 av_speech_enhancement.py video_preprocessing
 	--video <video_file>
