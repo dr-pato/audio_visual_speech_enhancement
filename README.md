@@ -108,7 +108,7 @@ av_speech_enhancement.py tbm_computation
 ```
 
 #### TFRecords generation
-Before training a model you have to generate TFRecords of mixed-speech dataset. ```<data_dir>/<mix_dir>``` must have three subdirectories named ```TRAINING_SET```, ```VALIDATION_SET``` and ```TEST_SET``` created with ```<mixed_speech_generator>``` subcommand. Pre-computed spectrogram (NPY format) must be located in the same directory of audio file.
+Before training you have to generate TFRecords of mixed-speech dataset. ```<data_dir>/<mix_dir>``` must have three subdirectories named ```TRAINING_SET```, ```VALIDATION_SET``` and ```TEST_SET``` created with ```<mixed_speech_generator>``` subcommand. Pre-computed spectrogram (NPY format) must be located in the same directory of audio file.
 Set ```<tfrecords_mode>```  to "fixed" if samples of the dataset all have the same length (as in GRID corpus), otherwise use "var" (as in TCD-TIMIT corpus).
 ```
 av_speech_enhancement.py tfrecords_generator
