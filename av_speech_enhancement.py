@@ -7,7 +7,7 @@ from face_landmarks import save_face_landmarks, show_face_landmarks
 from target_binary_mask import save_target_binary_masks
 from create_dataset_tfrecords import create_dataset
 from training import train, Configuration
-from evaluation import eval
+from testing import test
 
 
 def parse_args():
@@ -71,7 +71,7 @@ def parse_args():
 
     # Show face landmarks
     show_landmarks_parser = subparsers.add_parser('show_face_landmarks', description="""Show face landmarks.
-    If TXT file of landmarks is not provide, the face landmark are computed with face landmark extractor.""")
+    If TXT file of face landmarks is not provided, the face landmark are computed with face landmark extractor.""")
     show_landmarks_parser.add_argument('-v', '--video', required=True,
                                             help='The video file to be processed')
     show_landmarks_parser.add_argument('--fps', type=float, default=25.0,
@@ -96,7 +96,7 @@ def parse_args():
     tbm_parser.add_argument('-d', '--dest_dir', required=True,
                             help='The subdirectory where masks are saved')
     tbm_parser.add_argument('-mf', '--mask_factor', type=float, default=0.6,
-                            help='A value that controls the amount of T-F units assigned to target speaker (higher value assign more T-F units to noise/silence)')
+                            help='A value that controls the amount of T-F units assigned to target speaker (higher values assign more T-F units to noise/silence)')
     tbm_parser.add_argument('-sr', '--sample_rate', type=int, default=16000,
                             help='Desired sample rate (in Hz)')
     tbm_parser.add_argument('-ml', '--max_wav_length', type=int, required=True,
@@ -137,26 +137,26 @@ def parse_args():
     training_parser.add_argument('-data', '--data_dir', required=True, help='The base pathname of dataset')
     training_parser.add_argument('-ts', '--train_set', required=True, help='Subdirectory with TFRecords of training set')
     training_parser.add_argument('-vs', '--val_set', required=True, help='Subdirectory with TFRecords of validation set')
-    training_parser.add_argument('-e', '--exp', required=True, help='Experiment name')
+    training_parser.add_argument('-e', '--exp', required=True, help='Experiment identifier')
     training_parser.add_argument('-m', '--mode', default='fixed', choices=['fixed', 'var'],
                                  help='"TFRecord type: fixed" (default) or "var"')
-    training_parser.add_argument('--model', choices=['vl2m', 'vl2m_ref', 'av_concat_mask', 'av_concat_spec'],
-                                 help='Model type. "av_concat_spec" is the "av_concat_mask" model w/o masking')
-    training_parser.add_argument('-o', '--opt', required=True, choices=['sgd', 'adam', 'momentum'],
-                                 help='Training optimizer.')
-    training_parser.add_argument('-lr', '--learning_rate', type=float, required=True, help='Initial learning rate')
-    training_parser.add_argument('-us', '--updating_step', type=int, default=1000,
-                                 help='Frequecy (in training steps) of updates of learning rate ("sgd" and "momentum" only)')
-    training_parser.add_argument('-lc', '--learning_decay', type=float, default=1.0,
-                                 help='Learning rate decay ("sgd" and "momentum" only)')
-    training_parser.add_argument('-bs', '--batch_size', type=int, help='Training batch size')
-    training_parser.add_argument('-ep', '--epochs', type=int, help='Number of training epochs')
     training_parser.add_argument('-vd', '--video_dim', type=int, default=136,
                                  help='Size of a single video frame (default: 136)')
     training_parser.add_argument('-ad', '--audio_dim', type=int, default=257,
                                  help='Size of a single audio frame (default: 257)')
     training_parser.add_argument('-ns', '--num_audio_samples', type=int,
                                  help='Number of samples of audio wav if <mode> is "fixed" (otherwise it is ignored)')
+    training_parser.add_argument('--model', choices=['vl2m', 'vl2m_ref', 'av_concat_mask', 'av_concat_spec'],
+                                 help='Model type. "av_concat_spec" is the "av_concat_mask" model w/o masking')
+    training_parser.add_argument('-o', '--opt', required=True, choices=['sgd', 'adam', 'momentum'],
+                                 help='Training optimizer.')
+    training_parser.add_argument('-lr', '--learning_rate', type=float, required=True, help='Initial learning rate')
+    training_parser.add_argument('-us', '--updating_step', type=int, default=1000,
+                                 help='Frequency (in training steps) of updates of learning rate ("sgd" and "momentum" only)')
+    training_parser.add_argument('-lc', '--learning_decay', type=float, default=1.0,
+                                 help='Learning rate decay ("sgd" and "momentum" only)')
+    training_parser.add_argument('-bs', '--batch_size', type=int, help='Training batch size')
+    training_parser.add_argument('-ep', '--epochs', type=int, help='Number of training epochs')
     training_parser.add_argument('-nh', '--hidden_units', type=int, help='Number of units of BLSTM cells')
     training_parser.add_argument('-nl', '--layers', type=int, help='Number of stacked BLSTM cells')
     training_parser.add_argument('-d', '--dropout', type=float, default=1,
@@ -167,28 +167,28 @@ def parse_args():
                                  help='Threshold on estimated TBM for reconstruction ("vl2m" model only). If -1 (default) thresholding is not applied')
 
     # Eval audio-visual speech enhancement model
-    evaluation_parser = subparsers.add_parser('evaluation', description="""Eval an audio-visual speech enhancement model.""")
-    evaluation_parser.add_argument('-data', '--data_dir', required=True, help='The base pathname of dataset')
-    evaluation_parser.add_argument('-ts', '--test_set', required=True, help='Subdirectory with TFRecords of test set')
-    evaluation_parser.add_argument('-e', '--exp', required=True, help='Experiment name to be evaluated')
-    evaluation_parser.add_argument('-c', '--ckp', required=True,
-                                   help='Model checkpoint to be restored. The format is <n_epoch>_<n_step>')
-    evaluation_parser.add_argument('-m', '--mode', default='fixed', choices=['fixed', 'var'],
-                                   help='"TFRecord type: fixed" (default) or "var"')
-    evaluation_parser.add_argument('-vd', '--video_dim', type=int, default=136,
-                                   help='Size of a single video frame (default: 136)')
-    evaluation_parser.add_argument('-ad', '--audio_dim', type=int, default=257,
-                                   help='Size of a single audio frame (default: 257)')
-    evaluation_parser.add_argument('-mt', '--mask_threshold', type=float, default=-1,
-                                   help='Threshold on estimated TBM for reconstruction. If -1 (default) thresholding is not applied')
-    evaluation_parser.add_argument('-ns', '--num_audio_samples', type=int,
-                                   help='Number of samples of audio wav if <mode> is "fixed" (otherwise it is ignored)')
-    evaluation_parser.add_argument('-me', '--mix_eval', action='store_const', const=True, default=False, 
-                                   help='If it is set mixed-speech wavs are evaluated')
-    evaluation_parser.add_argument('-od', '--output_dir', default='',
-                                 help='Directory where are saved enhanced, mixed and target wavs. If empty string no wavs are saved')
-    evaluation_parser.add_argument('-md', '--mask_dir', default='',
-                                   help='Subdirectory <data_dir>/s<base_speaker_id>/<mask_dir> where estimated masks (spectrograms for "av_concat_spec" model')
+    testing_parser = subparsers.add_parser('testing', description="""Test an audio-visual speech enhancement model.""")
+    testing_parser.add_argument('-data', '--data_dir', required=True, help='The base pathname of dataset')
+    testing_parser.add_argument('-ts', '--test_set', required=True, help='Subdirectory with TFRecords of test set')
+    testing_parser.add_argument('-e', '--exp', required=True, help='Experiment name to be evaluated')
+    testing_parser.add_argument('-c', '--ckp', required=True,
+                                help='Model checkpoint to be restored. The format is <n_epoch>_<n_step>')
+    testing_parser.add_argument('-m', '--mode', default='fixed', choices=['fixed', 'var'],
+                                help='TFRecord type: "fixed" (default) or "var"')
+    testing_parser.add_argument('-vd', '--video_dim', type=int, default=136,
+                                help='Size of a single video frame (default: 136)')
+    testing_parser.add_argument('-ad', '--audio_dim', type=int, default=257,
+                                help='Size of a single audio frame (default: 257)')
+    testing_parser.add_argument('-mt', '--mask_threshold', type=float, default=-1,
+                                help='Threshold on estimated TBM for reconstruction. If -1 (default) thresholding is not applied')
+    testing_parser.add_argument('-ns', '--num_audio_samples', type=int,
+                                help='Number of samples of audio wav if <mode> is "fixed" (otherwise it is ignored)')
+    testing_parser.add_argument('-me', '--mix_eval', action='store_const', const=True, default=False, 
+                                help='If it is set mixed-speech wavs are evaluated')
+    testing_parser.add_argument('-od', '--output_dir', default='',
+                                help='Directory where are saved enhanced, mixed and target wavs. If empty string no wavs are saved')
+    testing_parser.add_argument('-md', '--mask_dir', default='',
+                                help='Subdirectory <data_dir>/s<base_speaker_id>/<mask_dir> where estimated masks (spectrograms for "av_concat_spec" model')
     
     return parser.parse_args()
 
@@ -217,8 +217,8 @@ def main():
                                args.opt, args.video_dim, args.audio_dim, args.num_audio_samples, args.epochs, args.hidden_units,
                                args.layers, args.regularization, args.mask_threshold)
         train(args.model, args.data_dir, args.train_set, args.val_set, config, args.exp, args.mode)
-    elif args.subparser_name == 'evaluation':
-        eval(args.data_dir, args.test_set, args.exp, args.ckp, args.video_dim, args.audio_dim, args.mode,
+    elif args.subparser_name == 'testing':
+        test(args.data_dir, args.test_set, args.exp, args.ckp, args.video_dim, args.audio_dim, args.mode,
              args.num_audio_samples, args.mask_threshold, args.mix_eval, args.output_dir, args.mask_dir)
     else:
         print("Bad subcommand name.")

@@ -1,4 +1,5 @@
-import tensorflow as tf, math
+import tensorflow as tf
+import math
 from audio_processing import compute_stft, get_oracle_iam, get_sources
 
 class VL2M(object):
