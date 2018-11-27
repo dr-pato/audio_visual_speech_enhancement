@@ -1,13 +1,14 @@
 import tensorflow as tf
 from os import listdir
 from os.path import isfile, join
+import random
 import numpy as np
 
 
 class DataManager:
     """Utilities to read TFRecords"""
 
-    def __init__(self, single_audio_frame_size, single_video_frame_size, num_audio_samples=48000, buffer_size=100000, mode='normal'):
+    def __init__(self, single_audio_frame_size, single_video_frame_size, num_audio_samples=48000, buffer_size=1000, mode='fixed'):
         self.num_audio_samples = num_audio_samples
         self.single_audio_frame_size = single_audio_frame_size
         self.single_video_frame_size = single_video_frame_size
@@ -17,6 +18,7 @@ class DataManager:
 
     def get_dataset(self, folder_path):
         file_list = [join(folder_path, f) for f in listdir(folder_path) if isfile(join(folder_path, f))]
+        random.shuffle(file_list)
         dataset = tf.data.TFRecordDataset(file_list)
 
         if self.mode == 'fixed':

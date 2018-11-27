@@ -149,12 +149,9 @@ class VL2M(object):
                 tf.summary.image('Oracle TBM', oracle_tbm, max_outputs=n_samples)
                 tf.summary.image('Estimated TBM', estimated_tbm, max_outputs=n_samples)
                 tf.summary.image('Estimated TBM (rounded)', estimated_tbm_round, max_outputs=n_samples)
-                mixed_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.mixed_sources), axis=1), (-1,
-                                                                                                   1))
-                target_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.target_sources), axis=1), (-1,
-                                                                                                     1))
-                enhanced_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.enhanced_sources), axis=1), (-1,
-                                                                                                         1))
+                mixed_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.mixed_sources), axis=1), (-1, 1))
+                target_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.target_sources), axis=1), (-1, 1))
+                enhanced_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.enhanced_sources), axis=1), (-1, 1))
                 tf.summary.audio('Mixed audio', self.mixed_sources / mixed_sources_max, 16000.0, max_outputs=n_samples)
                 tf.summary.audio('Target audio', self.target_sources / target_sources_max, 16000.0, max_outputs=n_samples)
                 tf.summary.audio('Masked audio', self.enhanced_sources / enhanced_sources_max, 16000.0, max_outputs=n_samples)
@@ -360,12 +357,9 @@ class VL2MRef(object):
                 tf.summary.image('Mixed spectrogram', mag_mixed_specs, max_outputs=n_samples)
                 tf.summary.image('Target spectrogram', mag_target_specs, max_outputs=n_samples)
                 tf.summary.image('Masked spectrogram', mag_masked_specs, max_outputs=n_samples)
-                mixed_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.mixed_sources), axis=1), (-1,
-                                                                                                   1))
-                target_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.target_sources), axis=1), (-1,
-                                                                                                     1))
-                enhanced_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.enhanced_sources), axis=1), (-1,
-                                                                                                         1))
+                mixed_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.mixed_sources), axis=1), (-1, 1))
+                target_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.target_sources), axis=1), (-1, 1))
+                enhanced_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.enhanced_sources), axis=1), (-1, 1))
                 tf.summary.audio('Mixed audio', self.mixed_sources / mixed_sources_max, 16000.0, max_outputs=n_samples)
                 tf.summary.audio('Target audio', self.target_sources / target_sources_max, 16000.0, max_outputs=n_samples)
                 tf.summary.audio('Masked audio', self.enhanced_sources / enhanced_sources_max, 16000.0, max_outputs=n_samples)
@@ -546,12 +540,9 @@ class AudioVisualConcatMask(object):
                 tf.summary.image('Mixed spectrogram', mag_mixed_specs, max_outputs=n_samples)
                 tf.summary.image('Target spectrogram', mag_target_specs, max_outputs=n_samples)
                 tf.summary.image('Masked spectrogram', mag_masked_specs, max_outputs=n_samples)
-                mixed_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.mixed_sources), axis=1), (-1,
-                                                                                                   1))
-                target_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.target_sources), axis=1), (-1,
-                                                                                                     1))
-                enhanced_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.enhanced_sources), axis=1), (-1,
-                                                                                                         1))
+                mixed_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.mixed_sources), axis=1), (-1, 1))
+                target_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.target_sources), axis=1), (-1, 1))
+                enhanced_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.enhanced_sources), axis=1), (-1, 1))
                 tf.summary.audio('Mixed audio', self.mixed_sources / mixed_sources_max, 16000.0, max_outputs=n_samples)
                 tf.summary.audio('Target audio', self.target_sources / target_sources_max, 16000.0, max_outputs=n_samples)
                 tf.summary.audio('Masked audio', self.enhanced_sources / enhanced_sources_max, 16000.0, max_outputs=n_samples)
@@ -719,12 +710,9 @@ class AudioVisualConcatSpec(object):
                 tf.summary.image('Mixed spectrogram', mag_mixed_specs, max_outputs=n_samples)
                 tf.summary.image('Target spectrogram', mag_target_specs, max_outputs=n_samples)
                 tf.summary.image('enh spectrogram', mag_enhanced_specs, max_outputs=n_samples)
-                mixed_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.mixed_sources), axis=1), (-1,
-                                                                                                   1))
-                target_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.target_sources), axis=1), (-1,
-                                                                                                     1))
-                enhanced_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.enhanced_sources), axis=1), (-1,
-                                                                                                         1))
+                mixed_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.mixed_sources), axis=1), (-1, 1))
+                target_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.target_sources), axis=1), (-1, 1))
+                enhanced_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.enhanced_sources), axis=1), (-1, 1))
                 tf.summary.audio('Mixed audio', self.mixed_sources / mixed_sources_max, 16000.0, max_outputs=n_samples)
                 tf.summary.audio('Target audio', self.target_sources / target_sources_max, 16000.0, max_outputs=n_samples)
                 tf.summary.audio('Masked audio', self.enhanced_sources / enhanced_sources_max, 16000.0, max_outputs=n_samples)

@@ -70,17 +70,15 @@ def parse_args():
                                             help='The extension of video files')
 
     # Show face landmarks
-    show_landmarks_parser = subparsers.add_parser('show_face_landmarks', description="""Show face landmarks.
-    If TXT file of face landmarks is not provided, the face landmark are computed with face landmark extractor.""")
+    show_landmarks_parser = subparsers.add_parser('show_face_landmarks',
+                                                  description='Show face landmarks along with face bounding boxes')
     show_landmarks_parser.add_argument('-v', '--video', required=True,
-                                            help='The video file to be processed')
+                                       help='The video file to be processed')
     show_landmarks_parser.add_argument('--fps', type=float, default=25.0,
                                        help='Video frame rate. If it set to zero, you have to press any key to show the video frame-by-frame')
     group = show_landmarks_parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-sp', '--shape_predictor', default='',
                        help='The file that contains the parameters of Dlib face landmark extractor')
-    group.add_argument('-fl', '--face_landmarks', default='',
-                       help='The face landmark TXT file')
     show_landmarks_parser.add_argument('--full', action='store_const', const=True, default=False,
                                        help='Draw connected lines of face landmarks points')
 
@@ -179,10 +177,10 @@ def parse_args():
                                 help='Size of a single video frame (default: 136)')
     testing_parser.add_argument('-ad', '--audio_dim', type=int, default=257,
                                 help='Size of a single audio frame (default: 257)')
-    testing_parser.add_argument('-mt', '--mask_threshold', type=float, default=-1,
-                                help='Threshold on estimated TBM for reconstruction. If -1 (default) thresholding is not applied')
     testing_parser.add_argument('-ns', '--num_audio_samples', type=int,
                                 help='Number of samples of audio wav if <mode> is "fixed" (otherwise it is ignored)')
+    testing_parser.add_argument('-mt', '--mask_threshold', type=float, default=-1,
+                                help='Threshold on estimated TBM for reconstruction. If -1 (default) thresholding is not applied')
     testing_parser.add_argument('-me', '--mix_eval', action='store_const', const=True, default=False, 
                                 help='If it is set mixed-speech wavs are evaluated')
     testing_parser.add_argument('-od', '--output_dir', default='',
@@ -205,7 +203,7 @@ def main():
     elif args.subparser_name == 'video_preprocessing':
         save_face_landmarks(args.data_dir, args.speaker_ids, args.video_dir, args.dest_dir, args.shape_predictor, args.ext)
     elif args.subparser_name == 'show_face_landmarks':
-        show_face_landmarks(args.video, fps=args.fps, predictor_params=args.shape_predictor, landmarks_file=args.face_landmarks, full_draw=args.full)
+        show_face_landmarks(args.video, fps=args.fps, predictor_params=args.shape_predictor, full_draw=args.full)
     elif args.subparser_name == 'tbm_computation':
         save_target_binary_masks(args.data_dir, args.speaker_ids, args.audio_dir, args.dest_dir, args.mask_factor,
                                  args.sample_rate, args.max_wav_length, args.num_ltass)

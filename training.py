@@ -54,7 +54,7 @@ def train(model_selection, data_path, data_path_train, data_path_val, config, ex
 
         # Create the DataManager that reads TFRecords.
         with tf.name_scope('train_batch'):
-            train_data_manager = DataManager(config.audio_feat_dim, config.video_feat_dim, config.num_audio_samples, mode=tfrecord_mode)
+            train_data_manager = DataManager(config.audio_feat_dim, config.video_feat_dim, config.num_audio_samples, buffer_size=4000, mode=tfrecord_mode)
             train_dataset, num_examples_train = train_data_manager.get_dataset(data_path_train)
             train_dataset, train_it = train_data_manager.get_iterator(train_dataset, batch_size=config.batch_size,
                                                                       n_epochs=config.num_epochs, train=True)

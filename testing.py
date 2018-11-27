@@ -38,13 +38,13 @@ def test(data_path, data_path_test, exp_num, ckp_step, video_feat_dim, audio_fea
         next_test_batch = test_it.get_next()
     
     # Placeholders
-    inputs = graph.get_tensor_by_name('placeholder/input_video:0')
-    sequence_lengths = graph.get_tensor_by_name('placeholder/sequence_lengths:0')
-    targets = graph.get_tensor_by_name('placeholder/tbm:0')
-    input_mixed_specs = graph.get_tensor_by_name('placeholder/input_mixed_specs:0')
-    mixed_sources = graph.get_tensor_by_name('placeholder/mixed_sources:0')
-    target_sources = graph.get_tensor_by_name('placeholder/target_sources:0')
-    keep_prob = graph.get_tensor_by_name('placeholder/keep_prob:0')
+    input_video_ph = graph.get_tensor_by_name('placeholder/input_video:0')
+    sequence_lengths_ph = graph.get_tensor_by_name('placeholder/sequence_lengths:0')
+    tbm_ph = graph.get_tensor_by_name('placeholder/tbm:0')
+    input_mixed_specs_ph = graph.get_tensor_by_name('placeholder/input_mixed_specs:0')
+    mixed_sources_ph = graph.get_tensor_by_name('placeholder/mixed_sources:0')
+    target_sources_ph = graph.get_tensor_by_name('placeholder/target_sources:0')
+    keep_prob_ph = graph.get_tensor_by_name('placeholder/keep_prob:0')
 
     # The inizializer operation.
     init_op = tf.group(test_it.initializer)
@@ -94,13 +94,13 @@ def test(data_path, data_path_test, exp_num, ckp_step, video_feat_dim, audio_fea
                 # Compute validation loss and enhanced sources
                 cost, test_output, test_enhanced_audio = sess.run(fetches=[loss_tensor, output_tensor, enhanced_sources_tensor],
                                                                   feed_dict={
-                                                                      inputs: test_video_feature,
-                                                                      sequence_lengths: test_length,
-                                                                      targets: test_tbm,
-                                                                      input_mixed_specs: test_mixed_specs,
-                                                                      mixed_sources: test_mixed_audio,
-                                                                      target_sources: test_base_audio,
-                                                                      keep_prob: 1.0})
+                                                                      input_video_ph: test_video_feature,
+                                                                      sequence_lengths_ph: test_length,
+                                                                      tbm_ph: test_tbm,
+                                                                      input_mixed_specs_ph: test_mixed_specs,
+                                                                      mixed_sources_ph: test_mixed_audio,
+                                                                      target_sources_ph: test_base_audio,
+                                                                      keep_prob_ph: 1.0})
                 
                 test_cost += cost
                 test_sequence_lengths_list.append(test_length)

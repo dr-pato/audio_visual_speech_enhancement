@@ -28,6 +28,7 @@ def extract_face_landmarks(video_filename, predictor_params, refresh_size=8):
     tracking_face = False # Keep track if we are using tracker
     i = 0 # Number of frames without detection
     landmarks = []
+    face_rects = []
     rect = None
     
     while cap.isOpened():
@@ -61,17 +62,18 @@ def extract_face_landmarks(video_filename, predictor_params, refresh_size=8):
                 # convert the facial landmark (x,y)-coordinates to a numpy
                 # array
                 shape = predictor(gray, rect)
-                shape = face_utils.shape_to_np(shape)
-                landmarks.append(shape)
+                landmarks.append(face_utils.shape_to_np(shape))
+                face_rects.append(face_utils.rect_to_bb(rect))
+
         else:
             break
 
     cap.release()
 
-    return np.array(landmarks)
+    return np.array(landmarks), np.array(face_rects)
 
 
-def show_face_landmarks(video_filename, predictor_params="", full_draw=False, landmarks_file="", fps=25.0, refresh_size=8):
+def show_face_landmarks(video_filename, predictor_params="", full_draw=False, fps=25.0, refresh_size=8):
     """
     Draws facial landmarks over original video frames. If full_draw is True connected lines
     of face landmark points are showed.
@@ -79,14 +81,12 @@ def show_face_landmarks(video_filename, predictor_params="", full_draw=False, la
     # Convert fps in frame len in milliseconds
     frame_len = int(1000 / fps) if fps > 0 else 0
 
-    if landmarks_file:
-        landmarks = np.loadtxt(landmarks_file, dtype=np.int32).reshape((-1, 68, 2))
-    else:
-        landmarks = extract_face_landmarks(video_filename, predictor_params, refresh_size)
-
+    # Extract face landmarks and face bounding boxes
+    landmarks, face_rects = extract_face_landmarks(video_filename, predictor_params, refresh_size)
+    
     cap = cv2.VideoCapture(video_filename)
 
-    for shape in landmarks:
+    for shape, rect in zip(landmarks, face_rects):
         ret, frame = cap.read()
     
         if ret == True:
@@ -94,6 +94,10 @@ def show_face_landmarks(video_filename, predictor_params="", full_draw=False, la
             # and draw them on the image
             for (x, y) in shape:
                 cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)
+
+            # draw face bounding box
+            x, y, w, h = rect
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
             if full_draw:
                 for (i, name) in enumerate(FACIAL_LANDMARKS_IDXS.keys()):
@@ -151,7 +155,7 @@ def save_face_landmarks_speaker(video_path, dest_path, predictor_params, file_ex
     
     count = 0
     for v_file in video_filenames:
-        landmarks = extract_face_landmarks(v_file, predictor_params, refresh_size)
+        landmarks, _ = extract_face_landmarks(v_file, predictor_params, refresh_size)
         l_file = os.path.join(dest_path, os.path.basename(v_file).replace('.' + file_ext, '.txt'))
         np.savetxt(l_file, landmarks.reshape([-1, 136]), fmt='%d')
         print('{} - Video file: {}'.format(count, v_file))

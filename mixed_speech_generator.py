@@ -2,6 +2,7 @@ import os
 from glob import glob 
 import random
 import shutil
+import numpy as np
 from pydub import AudioSegment
 
 
@@ -14,7 +15,7 @@ def two_files_audio_sum(file_1_path, file_2_path, file_sum_name, volume_reductio
     audio_sum = s1.overlay(s2, position=s2_shift)
     audio_sum.export(file_sum_name, format='wav')
 
-    return audio_sum
+    return np.array(audio_sum.get_array_of_samples())
 
 
 def three_files_audio_sum(file_1_path, file_2_path, file_3_path, file_sum_name, volume_reduction=0):
@@ -29,7 +30,7 @@ def three_files_audio_sum(file_1_path, file_2_path, file_3_path, file_sum_name, 
     audio_sum = audio_sum.overlay(s2, position=s3_shift)
     audio_sum.export(file_sum_name, format='wav')
 
-    return audio_sum
+    return np.array(audio_sum.get_array_of_samples())
 
 
 def random_files_selector(folders, n_file=1, exclude_files=[]):
