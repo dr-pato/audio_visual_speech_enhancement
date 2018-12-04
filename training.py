@@ -108,7 +108,7 @@ def train(model_selection, data_path, data_path_train, data_path_val, config, ex
         if not os.path.exists(traininglog_dir):
             os.makedirs(traininglog_dir)
 
-        trainingLogFile = open(os.path.join(traininglog_dir, 'TrainingExperiment_' + str(exp_num) + '.txt'), 'a')
+        training_log_file = open(os.path.join(traininglog_dir, 'TrainingExperiment_' + str(exp_num) + '.txt'), 'a')
 
         # Start session
         with tf.Session(config=tf.ConfigProto(allow_soft_placement=True,
@@ -135,22 +135,22 @@ def train(model_selection, data_path, data_path_train, data_path_val, config, ex
                 last_checkpoint_path = saver.restore(sess, last_checkpoint)
                 print('\nVariables restored. Global step: {:d}'.format(sess.run(model.global_step)))
             else:
-                trainingLogFile.write('+-- EXPERIMENT NUMBER - {:s} --+\n'.format(exp_num))
-                trainingLogFile.write('## optimizer: {:s}\n'.format(config.optimizer_choice))
-                trainingLogFile.write('## number of hidden layers (other): {:d}\n'.format(config.num_layers))
-                trainingLogFile.write('## number of hidden units: {:d}\n'.format(config.n_hidden))
-                trainingLogFile.write('## initial learning rate: {:.6f}\n'.format(config.learning_rate))
+                training_log_file.write('+-- EXPERIMENT NUMBER - {:s} --+\n'.format(exp_num))
+                training_log_file.write('## optimizer: {:s}\n'.format(config.optimizer_choice))
+                training_log_file.write('## number of hidden layers (other): {:d}\n'.format(config.num_layers))
+                training_log_file.write('## number of hidden units: {:d}\n'.format(config.n_hidden))
+                training_log_file.write('## initial learning rate: {:.6f}\n'.format(config.learning_rate))
                 if config.optimizer_choice != 'adam':
-                    trainingLogFile.write('## learning rate update steps: {:d}\n'.format(config.updating_step))
-                    trainingLogFile.write('## learning rate decay: {:.6f}\n'.format(config.learning_decay))
-                trainingLogFile.write('## regularization: {:.6f}\n'.format(config.reg))
-                trainingLogFile.write('## dropout keep probability (no dropout if 1): {:.6f}\n'.format(config.keep_prob))
-                trainingLogFile.write('## training size: {:d}\n'.format(num_examples_train))
-                trainingLogFile.write('## validation size: {:d}\n'.format(num_examples_val))
-                trainingLogFile.write('## batch size: {:d}\n'.format(config.batch_size))
-                trainingLogFile.write('## approx number of steps: {:d}\n'.format(n_steps))
-                trainingLogFile.write('## approx number of steps per epoch: {:d}\n'.format(n_steps_epoch))
-                trainingLogFile.write('\nEpoch\tLR\tTrain[Cost|L2-SPEC|SNR|SDR|SIR|SAR]\tVal[Cost|L2-SPEC|SNR|SDR|SIR|SAR]\n')
+                    training_log_file.write('## learning rate update steps: {:d}\n'.format(config.updating_step))
+                    training_log_file.write('## learning rate decay: {:.6f}\n'.format(config.learning_decay))
+                training_log_file.write('## regularization: {:.6f}\n'.format(config.reg))
+                training_log_file.write('## dropout keep probability (no dropout if 1): {:.6f}\n'.format(config.keep_prob))
+                training_log_file.write('## training size: {:d}\n'.format(num_examples_train))
+                training_log_file.write('## validation size: {:d}\n'.format(num_examples_val))
+                training_log_file.write('## batch size: {:d}\n'.format(config.batch_size))
+                training_log_file.write('## approx number of steps: {:d}\n'.format(n_steps))
+                training_log_file.write('## approx number of steps per epoch: {:d}\n'.format(n_steps_epoch))
+                training_log_file.write('\nEpoch\tLR\tTrain[Cost|L2-SPEC|SNR|SDR|SIR|SAR]\tVal[Cost|L2-SPEC|SNR|SDR|SIR|SAR]\n')
             
             # Print training details.
             print('')
@@ -175,17 +175,18 @@ def train(model_selection, data_path, data_path_train, data_path_val, config, ex
             try:
                 step = sess.run(model.global_step)
                 epoch_counter = int(step / n_steps_epoch)
-                epoch_cost = 0
-                epoch_snr = []
-                epoch_sdr = []
-                epoch_sar = []
-                epoch_sir = []
-                epoch_l2_spec = []
-
-                epoch_start_time = time()
                 
                 while True:
+                    epoch_start_time = time()
+                    epoch_counter += 1
                     step += 1
+                    epoch_cost = 0
+                    epoch_snr = []
+                    epoch_sdr = []
+                    epoch_sar = []
+                    epoch_sir = []
+                    epoch_l2_spec = []
+                
                     if (step - 1) % n_steps_epoch == 0:
                         print('-> Epoch {:d}'.format(epoch_counter))
                     
@@ -289,17 +290,12 @@ def train(model_selection, data_path, data_path_train, data_path_val, config, ex
                         tb_writer.add_summary(summaries, epoch_counter)
                         tb_writer.flush()
                         
-                        # Write trainining log file.
-                        trainingLogFile.write('{:d}\t[{:.6f}][{:.5f}|{:.5f}|{:.5f}|{:.5f}|{:.5f}|{:.5f}]\t[{:.5f}|{:.5f}|{:.5f}|{:.5f}|{:.5f}|{:.5f}]\n' \
+                        # Write training log file.
+                        training_log_file.write('{:d}\t[{:.6f}][{:.5f}|{:.5f}|{:.5f}|{:.5f}|{:.5f}|{:.5f}]\t[{:.5f}|{:.5f}|{:.5f}|{:.5f}|{:.5f}|{:.5f}]\n' \
                                               .format(epoch_counter, lr, epoch_cost / num_examples_train, epoch_l2_spec.mean(), epoch_snr.mean(), epoch_sdr.mean(), epoch_sir.mean(), epoch_sar.mean(),
                                                       val_cost / num_examples_val, val_l2_spec.mean(), val_snr.mean(), val_sdr.mean(), val_sir.mean(), val_sar.mean()))
                        
-                        trainingLogFile.flush()
-
+                        training_log_file.flush()
                         print('')
-                        epoch_counter += 1
-                        epoch_cost = 0
-                        epoch_start_time = time()
-                 
             except tf.errors.OutOfRangeError:
                print('Done training for %d epochs, %d steps: validation cost = %.5f' % (config.num_epochs, step, val_cost / num_examples_val))
