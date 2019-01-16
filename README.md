@@ -154,7 +154,7 @@ av_speech_enhancement.py testing
 	--data_dir <data_dir>
 	--test_set <training_set_subdir>
 	--exp <experiment_id>
-	--ckp <model_chechpoint>
+	--ckp <model_checkpoint>
 	--mode <tfrecords_mode> {fixed,var}
 	--audio_dim <audio_frame_dimension>
 	--video_dim <video_frame_dimension>
