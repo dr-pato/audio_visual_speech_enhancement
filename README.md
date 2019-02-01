@@ -89,7 +89,7 @@ av_speech_enhancement.py video_preprocessing
 
 If you want to check the result of the face landmark extractor type:
 ```
-av_speech_enhancement.py video_preprocessing
+av_speech_enhancement.py show_face_landmarks
 	--video <video_file>
 	--fps <fps>
 	--shape_predictor <shape_predictor_file>
