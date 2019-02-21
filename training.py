@@ -7,7 +7,7 @@ import tensorflow as tf
 from time import time
 
 from dataset_reader import DataManager
-from enhancement_model import VL2M, VL2MRef, AudioVisualConcatMask, AudioVisualConcatSpec
+from enhancement_model import VL2M, VL2MRef, AudioVisualConcatMask, AudioVisualConcatMaskRef
 from eval_metrics import snr_batch_eval, sdr_batch_eval, l2_batch_eval
 
 # Avoid printing TF log messages
@@ -85,11 +85,11 @@ def train(model_selection, data_path, data_path_train, data_path_val, config, ex
             elif model_selection == 'vl2m_ref':
                 model = VL2MRef(input_video, sequence_lengths, tbm, mixed_sources, target_sources, input_mixed_specs, keep_prob, config)
             elif model_selection == 'av_concat_mask':
-                model = AudioVisualConcatMask(input_video, sequence_lengths, tbm, mixed_sources, target_sources, input_mixed_specs, keep_prob, config)
-            elif model_selection == 'av_concat_spec':
-                model = AudioVisualConcatSpec(input_video, sequence_lengths, tbm, mixed_sources, target_sources, input_mixed_specs, keep_prob, config)
+                model = AudioVisualConcatMask(input_video, sequence_lengths, mixed_sources, target_sources, input_mixed_specs, keep_prob, config)
+            elif model_selection == 'av_concat_mask_ref':
+                model = AudioVisualConcatMaskRef(input_video, sequence_lengths, tbm, mixed_sources, target_sources, input_mixed_specs, keep_prob, config)
             else:
-                print('Model selection must be "vl2m", "vl2m_ref", "av_concat_mask" or "av_concat_spec". Closing...')
+                print('Model selection must be "vl2m", "vl2m_ref", "av_concat_mask" or "av_concat_mask_ref". Closing...')
                 sys.exit()
         
             model.create_graph()

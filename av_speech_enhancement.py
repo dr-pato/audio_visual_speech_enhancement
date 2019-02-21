@@ -144,7 +144,7 @@ def parse_args():
                                  help='Size of a single audio frame (default: 257)')
     training_parser.add_argument('-ns', '--num_audio_samples', type=int,
                                  help='Number of samples of audio wav if <mode> is "fixed" (otherwise it is ignored)')
-    training_parser.add_argument('--model', choices=['vl2m', 'vl2m_ref', 'av_concat_mask', 'av_concat_spec'],
+    training_parser.add_argument('--model', choices=['vl2m', 'vl2m_ref', 'av_concat_mask', 'av_concat_mask_ref'],
                                  help='Model type. "av_concat_spec" is the "av_concat_mask" model w/o masking')
     training_parser.add_argument('-o', '--opt', required=True, choices=['sgd', 'adam', 'momentum'],
                                  help='Training optimizer.')

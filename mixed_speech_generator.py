@@ -27,7 +27,7 @@ def three_files_audio_sum(file_1_path, file_2_path, file_3_path, file_sum_name, 
     s3_shift = (len(s1)-len(s3)) / 2 if len(s1) > len(s3) else 0
 
     audio_sum = s1.overlay(s2, position=s2_shift)
-    audio_sum = audio_sum.overlay(s2, position=s3_shift)
+    audio_sum = audio_sum.overlay(s3, position=s3_shift)
     audio_sum.export(file_sum_name, format='wav')
 
     return np.array(audio_sum.get_array_of_samples())

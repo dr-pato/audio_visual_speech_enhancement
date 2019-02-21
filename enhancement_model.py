@@ -388,7 +388,7 @@ class AudioVisualConcatMask(object):
     Loss: L2 (target_spec - enhanced_spec)
     """
 
-    def __init__(self, input_video, sequence_lengths, tbm, mixed_sources, target_sources, input_mixed_specs, keep_prob, config):
+    def __init__(self, input_video, sequence_lengths, mixed_sources, target_sources, input_mixed_specs, keep_prob, config):
         self.input_video = input_video
         self.sequence_lengths = sequence_lengths
         self.audio_frame_size = config.audio_feat_dim
@@ -562,13 +562,13 @@ class AudioVisualConcatMask(object):
         return self._weights
 
 
-class AudioVisualConcatSpec(object):
+class AudioVisualConcatMaskRef(object):
     """
-    Audio-Visual concat model (w/o masking)
-    Input: frame-level concatenation of audio and video (face landmarks) features.
+    Audio-Visual concat model (with masking)
+    Input: frame-level concatenation of audio spectrogram and TBM-masked audio spectrogram.
     Model: stacked BLSTM.
-    Output: enhanced spectrogram.
-    Loss: MSE (target_spec - enhanced_spec)
+    Output: Ideal Amplitude Mask (IAM).
+    Loss: L2 (target_spec - enhanced_spec)
     """
 
     def __init__(self, input_video, sequence_lengths, tbm, mixed_sources, target_sources, input_mixed_specs, keep_prob, config):
@@ -597,6 +597,7 @@ class AudioVisualConcatSpec(object):
         self._train_op = None
         self._prediction = None
         self._enhanced_sources = None
+        self._oracle_iam = None
         self._summaries = None
         self._global_step = None
         self._weights = None
@@ -612,13 +613,16 @@ class AudioVisualConcatSpec(object):
         self.loss
         self.train_op
         self.enhanced_sources
+        self.oracle_iam
         self.summaries
 
     @property
     def inference(self):
         if self._inference is None:
             max_sequence_length = tf.reduce_max(self.sequence_lengths)
-            net_input = tf.concat([self.input_video, self.input_mixed_specs], axis=2)
+            # TBM masking operation on noisy input spectrogram
+            tbm_masked_input = self.input_mixed_specs *  self.tbm
+            net_input = tf.concat([tbm_masked_input, self.input_mixed_specs], axis=2)
             with tf.variable_scope('forward'):
                 forward_cells = []
                 for i in range(self.num_layers):
@@ -650,16 +654,18 @@ class AudioVisualConcatSpec(object):
     @property
     def prediction(self):
         if self._prediction is None:
-            prediction = tf.sigmoid(self.inference) * 100
-            prediction = (tf.expand_dims(tf.sequence_mask(self.sequence_lengths, dtype=tf.float64), axis=2)) * self.inference
+            prediction = tf.sigmoid(self.inference) * 10
+            prediction = (tf.expand_dims(tf.sequence_mask(self.sequence_lengths, dtype=tf.float64), axis=2)) * prediction
             self._prediction = tf.identity(prediction, name='prediction')
         return self._prediction
 
     @property
     def loss(self):
         if self._loss is None:
-            target_specs_mag = tf.cast(tf.abs(self.target_specs) ** 0.3, dtype=tf.float64)
-            self.func_loss = tf.cast(tf.losses.mean_squared_error(labels=target_specs_mag, predictions=self.prediction), dtype=tf.float64, name='func_loss')
+            target_specs_mag = tf.cast(tf.abs(self.target_specs) ** 0.3, tf.float64)
+            mixed_specs_mag = tf.abs(self.mixed_specs) ** 0.3
+            estimated_specs = self.prediction * tf.cast(mixed_specs_mag, tf.float64)
+            self.func_loss = tf.nn.l2_loss(target_specs_mag - estimated_specs, name='func_loss')
             if self.regularization:
                 self.reg_loss = tf.reduce_sum([tf.nn.l2_loss(var) for var in self.weights], name='reg_loss')
             else:
@@ -688,13 +694,19 @@ class AudioVisualConcatSpec(object):
                 self._train_op = optimizer.minimize(self.loss, global_step=self.global_step, name='train_op')
         return self._train_op
 
-
     @property
     def enhanced_sources(self):
         if self._enhanced_sources is None:
-            enhanced_mag_specs = tf.cast(self.prediction, tf.float32) ** (1 / 0.3)
-            self._enhanced_sources = get_sources(enhanced_mag_specs, tf.angle(self.mixed_specs), num_samples=self.num_audio_samples)
+            mixed_mag_specs = tf.abs(self.mixed_specs) ** 0.3
+            masked_mag_specs = (mixed_mag_specs * tf.cast(self.prediction, tf.float32)) ** (1 / 0.3)
+            self._enhanced_sources = get_sources(masked_mag_specs, tf.angle(self.mixed_specs), num_samples=self.num_audio_samples)
         return tf.identity(self._enhanced_sources, name='enhanced_sources')
+
+    @property
+    def oracle_iam(self):
+        if self._oracle_iam is None:
+            self._oracle_iam = get_oracle_iam(self.target_specs, self.mixed_specs)
+        return tf.identity(self._oracle_iam, name='oracle_iam')
 
     @property
     def summaries(self):
@@ -704,12 +716,16 @@ class AudioVisualConcatSpec(object):
         if self._summaries is None:
             n_samples = 10
             with tf.name_scope('summary'):
+                oracle_iam = tf.map_fn(tf.image.flip_up_down, tf.expand_dims(tf.transpose(self.oracle_iam, [0, 2, 1]), axis=3))
+                estimated_iam = tf.map_fn(tf.image.flip_up_down, tf.expand_dims(tf.transpose(self.prediction, [0, 2, 1]), axis=3))
                 mag_mixed_specs = tf.map_fn(tf.image.flip_up_down, tf.expand_dims(tf.transpose(tf.abs(self.mixed_specs) ** 0.3, [0, 2, 1]), axis=3))
                 mag_target_specs = tf.map_fn(tf.image.flip_up_down, tf.expand_dims(tf.transpose(tf.abs(self.target_specs) ** 0.3, [0, 2, 1]), axis=3))
-                mag_enhanced_specs = tf.map_fn(tf.image.flip_up_down, tf.expand_dims(tf.transpose(tf.abs(self.mixed_specs) ** 0.3 * tf.cast(self.prediction, tf.float32), [0, 2, 1]), axis=3))
+                mag_masked_specs = tf.map_fn(tf.image.flip_up_down, tf.expand_dims(tf.transpose(tf.abs(self.mixed_specs) ** 0.3 * tf.cast(self.prediction, tf.float32), [0, 2, 1]), axis=3))
+                tf.summary.image('Oracle IAM', oracle_iam, max_outputs=n_samples)
+                tf.summary.image('Estimated IAM', estimated_iam, max_outputs=n_samples)
                 tf.summary.image('Mixed spectrogram', mag_mixed_specs, max_outputs=n_samples)
                 tf.summary.image('Target spectrogram', mag_target_specs, max_outputs=n_samples)
-                tf.summary.image('enh spectrogram', mag_enhanced_specs, max_outputs=n_samples)
+                tf.summary.image('Masked spectrogram', mag_masked_specs, max_outputs=n_samples)
                 mixed_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.mixed_sources), axis=1), (-1, 1))
                 target_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.target_sources), axis=1), (-1, 1))
                 enhanced_sources_max = tf.reshape(tf.reduce_max(tf.abs(self.enhanced_sources), axis=1), (-1, 1))
