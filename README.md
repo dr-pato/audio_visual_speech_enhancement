@@ -124,7 +124,7 @@ av_speech_enhancement.py tfrecords_generator
 	--norm_data_dir <normalization_data_dir>
 ```
 #### Training
-Train an audio-visual speech enhancement model described. You can choose between VL2M, VL2M_ref, Audio-Visual Concat (with and without masking) models.
+Train an audio-visual speech enhancement model described. You can choose between VL2M, VL2M_ref, Audio-Visual Concat and Audio-Visual Concat-ref models.
 ```
 av_speech_enhancement.py training
 	--data_dir <data_dir>
@@ -135,7 +135,7 @@ av_speech_enhancement.py training
 	--audio_dim <audio_frame_dimension>
 	--video_dim <video_frame_dimension>
 	--num_audio_samples <num_audio_samples>
-	--model <model_selection> {vl2m,vl2m_ref,av_concat_mask,av_concat_spec}
+	--model <model_selection> {vl2m,vl2m_ref,av_concat_mask,av_concat_mask_ref}
 	--opt <optimizer_choice> {sgd,adam,momentum}
 	--learning_rate <learning_rate>
 	--updating_step <updating_step>
@@ -145,7 +145,7 @@ av_speech_enhancement.py training
 	--hidden_units <num_hidden_lstm_units>
 	--layers <num_lstm_layers>
 	--dropout <dropout_rate>
-	--regularization <regularization_weigth>
+	--regularization <regularization_weight>
 ```
 #### Testing
 Test your trained model. Enhanced speech samples and estimated masks are saved in ```<data_dir>/<output_dir>```. Estimated masks are saved  in subdirectories ```<mask_dir>``` of each speaker directory.
