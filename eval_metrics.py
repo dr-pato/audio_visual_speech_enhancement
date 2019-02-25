@@ -8,7 +8,7 @@ def sdr_batch_eval(target_sources, noisy_sources, estimated_sources, sample_rate
     sir_list = []
     sar_list = []
 
-    n_samples_frame = int(step_size * sample_rate)
+    n_samples_frame = int(step_size / 1e3 * sample_rate)
     for i, (target, noisy, estimated) in enumerate(zip(target_sources, noisy_sources, estimated_sources)):
         if sequence_lengths is not None:
             target = target[: sequence_lengths[i] * n_samples_frame]
@@ -34,7 +34,7 @@ def sdr_batch_eval_ss(target_source, estimated_source, sample_rate=16e3, step_si
     sdr_list = []
     sir_list = []
     sar_list = []
-    n_samples_frame = int(step_size * sample_rate)
+    n_samples_frame = int(step_size / 1e3 * sample_rate)
     for i, (target, estimated) in enumerate(zip(target_source, estimated_source)):
         if sequence_lengths is not None:
            target = target[: sequence_lengths[i] * n_samples_frame]
@@ -72,7 +72,7 @@ def l2_batch_eval(target_sources, estimated_sources, sequence_lengths=None, samp
 def snr_batch_eval(target_sources, estimated_sources, sample_rate=16e3, step_size=10, sequence_lengths=None):
     snr_list = []
 
-    n_samples_frame = int(step_size * sample_rate)
+    n_samples_frame = int(step_size / 1e3 * sample_rate)
     for i, (target, estimated, seq_len) in enumerate(zip(target_sources, estimated_sources, sequence_lengths)):
         target = target[: seq_len * n_samples_frame]
         estimated = estimated[: len(target)]
