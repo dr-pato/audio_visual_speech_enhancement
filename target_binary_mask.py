@@ -16,7 +16,7 @@ TF_INTRA_OP_PT = int(os.getenv('TF_INTRA_OP', 0))
 TF_INTER_OP_PT = int(os.getenv('TF_INTER_OP', 0))
 
 
-def ltass_speaker(audio_folder, sample_rate, max_audio_length=48000, window_size=25, step_size=10, n_samples=1000):
+def ltass_speaker(audio_folder, sample_rate=16e3, max_audio_length=48000, window_size=25, step_size=10, n_samples=1000):
     """
     Compute the speaker Long-Term Average Speech Spectrum of a speaker.
     """
@@ -60,7 +60,7 @@ def ltass_speaker(audio_folder, sample_rate, max_audio_length=48000, window_size
     return mean_spec, stdev_spec, specs
 
 
-def compute_tbm(audio_folder, mask_threshold, max_audio_length=48000, sample_rate=16e3, n_fft=512, window_size=25, step_size=10):
+def compute_tbm(audio_folder, mask_threshold, sample_rate=16e3, max_audio_length=48000, n_fft=512, window_size=25, step_size=10):
     """
     Compute TBMs using LTASS.
     """
@@ -82,8 +82,7 @@ def compute_tbm(audio_folder, mask_threshold, max_audio_length=48000, sample_rat
     with tf.Graph().as_default():
         samples_tensor = tf.constant(audio_samples, dtype=tf.float32)
         # Compute STFT
-        specs_tensor = tf.contrib.signal.stft(samples_tensor, frame_length=window_frame_size, frame_step=step_frame_size,
-                                              fft_length=n_fft, pad_end=True)
+        specs_tensor = tf.contrib.signal.stft(samples_tensor, frame_length=window_frame_size, frame_step=step_frame_size, pad_end=True)
         specs_tensor = tf.abs(specs_tensor)
 
         # Start session
@@ -112,7 +111,7 @@ def save_target_binary_masks_speaker(audio_folder, mask_folder, mask_factor=0.5,
     print('Threshold shape:', threshold_freq.shape)
     
     # Compute binary masks
-    audio_filenames, masks, num_frames = compute_tbm(audio_folder, threshold_freq, max_audio_length=max_audio_length)
+    audio_filenames, masks, num_frames = compute_tbm(audio_folder, threshold_freq, sample_rate, max_audio_length=max_audio_length)
 
     if not os.path.exists(mask_folder):
         os.makedirs(mask_folder)
