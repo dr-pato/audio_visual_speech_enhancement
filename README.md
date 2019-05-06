@@ -165,10 +165,12 @@ av_speech_enhancement.py testing
 ## Reference
 If this project is useful for your research, please cite:
 ```
-@article{morrone2018face,
+@inproceedings{morrone2019face,
   title={Face Landmark-based Speaker-Independent Audio-Visual Speech Enhancement in Multi-Talker Environments},
-  author={Morrone, Giovanni and Pasa, Luca and Tikhanoff, Vadim and Bergamaschi, Sonia and Fadiga, Luciano and Badino, Leonardo},
-  journal={arXiv preprint arXiv:1811.02480},
-  year={2018}
+  author={Morrone, Giovanni and Bergamaschi, Sonia and Pasa, Luca and Fadiga, Luciano and Tikhanoff, Vadim and Badino, Leonardo},
+  booktitle={ICASSP 2019-2019 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)},
+  pages={6900--6904},
+  year={2019},
+  organization={IEEE}
 }
 ```
