@@ -209,25 +209,3 @@ def test(data_path, data_path_test, exp_num, ckp_step, video_feat_dim, audio_fea
                 np.save(os.path.join(dirname, basename), output[:seq_len])
                 
             print('done.')
-
-
-if __name__ == '__main__':
-    data_path = os.getenv('DATA_PATH', 'C:/Users/Giovanni Morrone/Documents/Dottorato di Ricerca/Speech Recognition/datasets/GRID')
-    data_path_test = os.getenv('TEST_DIR', 'TFRecords/grid_test_2spk/TRAINING_SET')
-
-    exp_num = os.getenv('EXP_NUM', 'VL2M_TEST')
-    video_feat_dim = int(os.getenv('VIDEO_FEAT_DIM', 136))
-    audio_feat_dim = int(os.getenv('AUDIO_FEAT_DIM', 257))
-    mask_threshold = float(os.getenv('MASK_THRESHOLD', -1)) # -1: no thresholding
-    tfrecord_mode = os.getenv('TFRECORD_MODE', 'fixed')
-    num_audio_samples = int(os.getenv('NUM_AUDIO_SAMPLES', 48000)) if tfrecord_mode == 'fixed' else 0 # If "tfrecord_mode" is "var" this value is ignored.
-    max_batch_size = int(os.getenv('BATCH_SIZE', 10))
-    
-    restored_epoch = os.getenv('EPOCH', '0_7')
-    mix_eval = int(os.getenv('MIX_EVAL', 1)) # Evaluation of mixed samples. 0: no - 1: yes.
-    save_rec_dir = os.getenv('SAVE_SAMPLES_DIR', 'samples_si/test_grid') # Save target, mixed, enhanced samples
-    save_out_dir = os.getenv('SAVE_OUTPUT_DIR', 'mask_test') # Save estimated masks (spectrograms for "av_concat_spec" model)
-
-    eval(data_path, data_path_test, exp_num, restored_epoch, video_feat_dim, audio_feat_dim, tfrecord_mode, num_audio_samples, mask_threshold,mix_eval, save_rec_dir, save_out_dir)
-    
-    
